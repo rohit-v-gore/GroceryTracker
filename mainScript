@@ -1,0 +1,64 @@
+import datetime
+import json
+
+# Initialize an empty grocery dictionary to store items and their expiration dates
+grocery_dict = {}
+
+def load_data():
+    try:
+        with open("grocery_data.json", "r") as file:
+            data = json.load(file)
+            return data
+    except FileNotFoundError:
+        return {}
+
+def save_data(data):
+    with open("grocery_data.json", "w") as file:
+        json.dump(data, file)
+
+def add_grocery_item():
+    item = input("Enter the name of the grocery item: ")
+    expiration_date = input("Enter the expiration date (yyyy-mm-dd): ")
+
+    try:
+        expiration_date = datetime.datetime.strptime(expiration_date, "%Y-%m-%d").date()
+    except ValueError:
+        print("Invalid date format. Use yyyy-mm-dd.")
+        return
+
+    grocery_dict[item] = expiration_date
+    save_data(grocery_dict)
+
+def list_groceries():
+    if not grocery_dict:
+        print("No groceries added yet.")
+    else:
+        sorted_items = sorted(grocery_dict.items(), key=lambda x: x[1])
+        print("\nGroceries to consume (sorted by closest expiration date):")
+        for item, expiration_date in sorted_items:
+            print(f"{item} - Expiration Date: {expiration_date}")
+
+def main():
+    grocery_dict.update(load_data())
+
+    while True:
+        print("\nGrocery Expiration Tracker")
+        print("1. Add grocery item")
+        print("2. List groceries by expiration date")
+        print("3. Quit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            add_grocery_item()
+        elif choice == "2":
+            list_groceries()
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+    save_data(grocery_dict)
+
+if __name__ == "__main__":
+    main()
